@@ -1,15 +1,25 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
+import { Router } from 'itty-router';
+import handleRequest from './account/user.js';
+import handleReviewRequest from './reviews/reviews.js';
+// Router
+const router = Router();
+
+// User Routes
+router.get('/user', (request, env) => handleRequest(request,env));
+router.post('/user', (request, env) => handleRequest(request, env));
+
+// Reviews
+router.get('/reviews', (request, env) => handleReviewRequest(request, env));
+router.post('/reviews', (request, env) => handleReviewRequest(request, env));
 
 export default {
 	async fetch(request, env, ctx) {
-		return new Response('Hello World!');
+		const result = await router.handle(request, env, ctx);
+
+		if (!result) {
+			return new Response('Invalid URL', { status: 404 });
+		}
+
+		return result;
 	},
 };
